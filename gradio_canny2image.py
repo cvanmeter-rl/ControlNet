@@ -14,9 +14,9 @@ from annotator.canny import CannyDetector
 from cldm.model import create_model, load_state_dict
 from cldm.ddim_hacked import DDIMSampler
 
-
+print("loading detector")
 apply_canny = CannyDetector()
-
+print("loading model")
 model = create_model('./models/cldm_v15.yaml').cpu()
 model.load_state_dict(load_state_dict('./models/control_sd15_canny.pth', location='cuda'))
 model = model.cuda()
@@ -64,7 +64,7 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         results = [x_samples[i] for i in range(num_samples)]
     return [255 - detected_map] + results
 
-
+print("UI Start")
 block = gr.Blocks().queue()
 with block:
     with gr.Row():
