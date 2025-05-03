@@ -64,7 +64,7 @@ print("Loading images...")
 #     'ip_adapter_conditioning_scale': 2.0,
 # }
 
-def run_on_dataset(dataset_path:Path,output_path:Path,ref_image):
+def run_on_dataset(dataset_path,output_path:Path,ref_image):
     dataset_path = Path(dataset_path)
     dataset_name = dataset_path.name
 
@@ -108,5 +108,5 @@ real_path = "references/JAX_427_009_013_RIGHT_RGB.tif"
 ref_img = Image.open(real_path)
 synthetic_datasets = ["/mnt/synrs3d/SynRS3D/data/terrain_g05_mid_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_mid_v2","/mnt/synrs3d/SynRS3D/data/terrain_g05_low_v1","/mnt/synrs3d/SynRS3D/data/terrain_g05_high_v1","/mnt/synrs3d/SynRS3D/data/terrain_g005_mid_v1","/mnt/synrs3d/SynRS3D/data/terrain_g005_low_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_mid_v2","/mnt/synrs3d/SynRS3D/data/terrain_g005_high_v1","/mnt/synrs3d/SynRS3D/data/terrain_g1_mid_v1","/mnt/synrs3d/SynRS3D/data/terrain_g1_low_v1","/mnt/synrs3d/SynRS3D/data/terrain_g1_high_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_mid_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_low_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_high_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_mid_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_low_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_high_v1"]
 output_path = Path('/mnt/controlNet-output')
-
-run_on_dataset(synthetic_datasets,output_path,ref_img)
+for path in synthetic_datasets:
+    run_on_dataset(path,output_path,ref_img)
