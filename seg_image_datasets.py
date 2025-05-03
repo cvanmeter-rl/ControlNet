@@ -19,52 +19,52 @@ print("Loading images...")
 # ----------
 # Control via Segmentation Map
 # ----------
-base_id = "runwayml/stable-diffusion-v1-5"
-seg_id = "lllyasviel/sd-controlnet-seg"
+# base_id = "runwayml/stable-diffusion-v1-5"
+# seg_id = "lllyasviel/sd-controlnet-seg"
 
-control_seg = ControlNetModel.from_pretrained(
-    seg_id,
-    torch_dtype=torch.float16,
-    low_cpu_mem_usage=True
-).to("cuda")
+# control_seg = ControlNetModel.from_pretrained(
+#     seg_id,
+#     torch_dtype=torch.float16,
+#     low_cpu_mem_usage=True
+# ).to("cuda")
 
-pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
-    base_id,
-    controlnet=control_seg,    # Multi-ControlNet
-    torch_dtype=torch.float16
-).to("cuda")
+# pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
+#     base_id,
+#     controlnet=control_seg,    # Multi-ControlNet
+#     torch_dtype=torch.float16
+# ).to("cuda")
 
-print("Initializing diffusion pipeline...")
+# print("Initializing diffusion pipeline...")
 
-pipe.load_ip_adapter(
-    "h94/IP-Adapter",          # repo root  (public)
-    "models",    # sub-folder with the weights
-    "ip-adapter-plus_sd15.safetensors",  # file name (or None to auto-pick)
-    weight=1.0
-)
-pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
+# pipe.load_ip_adapter(
+#     "h94/IP-Adapter",          # repo root  (public)
+#     "models",    # sub-folder with the weights
+#     "ip-adapter-plus_sd15.safetensors",  # file name (or None to auto-pick)
+#     weight=1.0
+# )
+# pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
 
-print("Running diffusion...")
+# print("Running diffusion...")
 
-generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
+# generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 
 
-# ----------
-# Diffuse realistic image
-# ----------
-params = {
-    'prompt': "asphalt micro-texture, concrete rooftops with slight staining, photogrammetric sharpness, realistic aerial perspective",
-    'negative_prompt': "warped perspective,repeated tiling patterns,checkerboard texture, pixelated aliasing",
-    'strength': 0.1,
-    'num_inference_steps': 100,
-    'guidance_scale': 6,
-    'control_guidance_start': 0.0,
-    'control_guidance_end': 1.0,
-    'controlnet_conditioning_scale': 0.8,
-    'ip_adapter_conditioning_scale': 2.0,
-}
+# # ----------
+# # Diffuse realistic image
+# # ----------
+# params = {
+#     'prompt': "asphalt micro-texture, concrete rooftops with slight staining, photogrammetric sharpness, realistic aerial perspective",
+#     'negative_prompt': "warped perspective,repeated tiling patterns,checkerboard texture, pixelated aliasing",
+#     'strength': 0.1,
+#     'num_inference_steps': 100,
+#     'guidance_scale': 6,
+#     'control_guidance_start': 0.0,
+#     'control_guidance_end': 1.0,
+#     'controlnet_conditioning_scale': 0.8,
+#     'ip_adapter_conditioning_scale': 2.0,
+# }
 
-def run_on_dataset(dataset_path:Path,output_path:Path):
+def run_on_dataset(dataset_path:Path,output_path:Path,ref_image):
     dataset_path = Path(dataset_path)
     dataset_name = dataset_path.name
 
@@ -78,6 +78,7 @@ def run_on_dataset(dataset_path:Path,output_path:Path):
     tif_files = list(opt_dir.glob("*.tif"))
 
     for tif_file in tqdm(tif_files,desc=f"{dataset_name}",unit='file'):
+        print(tif_file)
         seg_image = dataset_path / "gt_nDSM" / tif_file.name
         print(seg_image)
         # out = pipe(
@@ -91,18 +92,21 @@ def run_on_dataset(dataset_path:Path,output_path:Path):
         # controlnet_conditioning_scale = params['controlnet_conditioning_scale'],  # weights we chose earlier
         # ip_adapter_conditioning_scale = params['ip_adapter_conditioning_scale'],
         # image                         = tif_file,
-        # control_image                 = seg_img, 
+        # control_image                 = seg_image, 
         # ip_adapter_image              = ref_img,     #color reference
         # generator                     = generator
         # ).images[0]
 
-        #out.save()
+        # out.save()
 
 
 
 
 
 
-
+real_path = "references/JAX_427_009_013_RIGHT_RGB.tif"
+ref_img = Image.open(real_path)
 synthetic_datasets = ["/mnt/synrs3d/SynRS3D/data/terrain_g05_mid_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_mid_v2","/mnt/synrs3d/SynRS3D/data/terrain_g05_low_v1","/mnt/synrs3d/SynRS3D/data/terrain_g05_high_v1","/mnt/synrs3d/SynRS3D/data/terrain_g005_mid_v1","/mnt/synrs3d/SynRS3D/data/terrain_g005_low_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_mid_v2","/mnt/synrs3d/SynRS3D/data/terrain_g005_high_v1","/mnt/synrs3d/SynRS3D/data/terrain_g1_mid_v1","/mnt/synrs3d/SynRS3D/data/terrain_g1_low_v1","/mnt/synrs3d/SynRS3D/data/terrain_g1_high_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_mid_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_low_v1","/mnt/synrs3d/SynRS3D/data/grid_g005_high_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_mid_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_low_v1","/mnt/synrs3d/SynRS3D/data/grid_g05_high_v1"]
 output_path = Path('/mnt/controlNet-output')
+
+run_on_dataset(synthetic_datasets,output_path,ref_img)
