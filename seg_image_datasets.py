@@ -79,6 +79,8 @@ def run_on_dataset(dataset_path,output_path:Path,ref_image):
 
     for tif_file in tqdm(tif_files,desc=f"{dataset_name}",unit='file'):
         seg_image = dataset_path / "gt_nDSM" / tif_file.name
+        seg_image = Image.open(seg_image)
+        tif_file = Image.open(tif_file)
 
         out = pipe(
         prompt                        = params['prompt'],
