@@ -80,7 +80,7 @@ def run_on_dataset(dataset_path,output_path:Path,ref_image):
     for tif_file in tqdm(tif_files,desc=f"{dataset_name}",unit='file'):
         seg_image = dataset_path / "gt_nDSM" / tif_file.name
         seg_image = Image.open(seg_image)
-        tif_file = Image.open(tif_file)
+        input_file = Image.open(tif_file)
 
         out = pipe(
         prompt                        = params['prompt'],
@@ -92,7 +92,7 @@ def run_on_dataset(dataset_path,output_path:Path,ref_image):
         control_guidance_end          = params['control_guidance_end'],  # … but disabled after 50 % of steps
         controlnet_conditioning_scale = params['controlnet_conditioning_scale'],  # weights we chose earlier
         ip_adapter_conditioning_scale = params['ip_adapter_conditioning_scale'],
-        image                         = tif_file,
+        image                         = input_file,
         control_image                 = seg_image, 
         ip_adapter_image              = ref_image,     #color reference
         generator                     = generator
