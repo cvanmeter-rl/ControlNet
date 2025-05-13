@@ -1,3 +1,4 @@
+# How To Run ControlNet On SynRS3D
 1. clone the repository 
 2. Download dependencies required to run seg_image_datasets.py by running the command below. Make sure to swap the pytorch version based on your cuda version. 
     - pip install --upgrade \
