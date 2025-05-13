@@ -9,11 +9,11 @@ from diffusers import (
 )
 
 img_path = "./test_imgs/0000002002-1_1.tif"
-src_img   = Image.open(img_path).convert("RGB")
+src_img   = Image.open(img_path)
 
 # ----- HED edge map (structure lock) -----
 hed = HEDdetector.from_pretrained('lllyasviel/Annotators')
-hed_map = hed(src_img)                        # returns a PIL image, 512×512 by default
+hed_map = hed(src_img.convert("RGB"))                        # returns a PIL image, 512×512 by default
 hed_map = cv2.GaussianBlur(
             cv2.cvtColor(np.array(hed_map), cv2.COLOR_RGB2GRAY),
             (0, 0), sigmaX=3)                 # soft-blur: mid-control only needs hints
@@ -34,7 +34,7 @@ pipe.load_ip_adapter(
     "h94/IP-Adapter",          # repo root  (public)
     "models",    # sub-folder with the weights
     "ip-adapter-plus_sd15.safetensors",  # file name (or None to auto-pick)
-    weight=1               # adapter strength
+    weight=1.0               # adapter strength
 )
 pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
 pipe.to("cuda")
@@ -58,4 +58,4 @@ out = pipe(
         generator          = generator
 ).images[0]
 
-out.save("./output/satellite_realistic.png")
+out.save("./output/satellite_realistic_hed.tif")
